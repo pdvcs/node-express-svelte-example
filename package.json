@@ -1,0 +1,22 @@
+{
+    "name": "node-express-svelte-example",
+    "version": "0.0.1",
+    "description": "A simple NodeJS + Express 'hello world' app, with Svelte",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "live": "nodemon index.js",
+        "bundle": "pushd svelte && npm run build && popd",
+        "server": "node index.js",
+        "fmt": "npx prettier -w ."
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "express": "^4.17.3"
+    },
+    "devDependencies": {
+        "prettier": "^2.6.1",
+        "prettier-plugin-svelte": "^2.6.0"
+    }
+}
