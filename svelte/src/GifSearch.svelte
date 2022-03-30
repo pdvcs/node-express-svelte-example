@@ -1,19 +1,37 @@
 <script>
-    var tenorKey = ""
+    let tenorKey = ""
+    let videoPlayed = false
+
+    let errorHandler = function (err) {
+        return new Response(
+            JSON.stringify({
+                msgtype: "error",
+                message: err.message,
+            })
+        )
+    }
+    function ensureSuccess(resp) {
+        if (!resp.ok) {
+            throw Error(`error fetching ${resp.url}: HTTP status ${resp.status}, ${resp.statusText}`)
+        }
+        return resp
+    }
+
     async function apiKey() {
         /*
             We didn't want to put an API key here, so we're loading it remotely.
             Of course the key is available client-side so it's not super-secret, but
             at least it's not in Git...
 
-            <ProjectRoot>/public/static/config.json should be:
+            <ProjectRoot>/public/static/api-config.json should be:
             { "apiKey": "TENOR_API_KEY" }
         */
-        let resp = await fetch("static/api-config.json")
-        if (!resp.ok) {
-            throw new Error(`error fetching config: HTTP status ${resp.status}`)
+        let data = await (await fetch("static/api-config.json").then(ensureSuccess).catch(errorHandler))
+            .json()
+            .catch(errorHandler)
+        if ("apiKey" in data === false) {
+            throw Error("error fetching API key")
         } else {
-            let data = await resp.json()
             return data.apiKey
         }
     }
@@ -21,7 +39,7 @@
     async function tenorUrl(searchTerm) {
         if (tenorKey === "") {
             tenorKey = await apiKey()
-            // console.log(`Tenor API key = ${tenorKey}`)
+            // console.log(`API key = ${tenorKey}`)
         }
 
         let limit = 1
@@ -29,24 +47,13 @@
         return "https://g.tenor.com/v1/search?q=" + searchTerm + "&key=" + tenorKey + "&limit=" + limit
     }
 
-    async function tenorLoader(searchTerm) {
+    async function fetchGif(searchTerm) {
         const resp = await fetch(await tenorUrl(searchTerm))
-        if (!resp.ok) {
-            const message = `error: ${resp.status}`
-            throw new Error(message)
-        }
+            .then(ensureSuccess)
+            .catch(errorHandler)
         const gifs = await resp.json()
         return gifs
     }
-
-    async function showVideo(searchTerm) {
-        let gifsJson = tenorLoader(searchTerm).catch((err) => {
-            throw new Error(err.message)
-        })
-        return gifsJson
-    }
-
-    let videoPlayed = false
 
     function playVideo(mp4url) {
         var video = document.getElementById("gifv")
@@ -66,35 +73,37 @@
         videoPlayed = true
     }
 
-    function handleClick() {
-        let btn = document.getElementById("gifkeyword")
-        btn.disabled = true
-        let promise = showVideo(btn.value)
-        promise.then((resp) => {
-            // document.getElementById("tx1").value = JSON.stringify(resp, null, 2);
-            let gifUrl = resp.results[0].media[0].loopedmp4.url
-            console.log(`*** Loading GIF from ${gifUrl} ...`)
-            playVideo(gifUrl)
-            btn.disabled = false
-        })
+    function onPressFetchButton() {
+        let txtKeyword = document.getElementById("keyword")
+        let btnFetch = document.getElementById("btnfetch")
+        btnFetch.disabled = true
+        let promise = fetchGif(txtKeyword.value)
+        promise
+            .then((resp) => {
+                if (resp.msgtype === "error") {
+                    console.log("Problem loading GIF:", resp)
+                } else {
+                    let gifUrl = resp.results[0].media[0].loopedmp4.url
+                    if (typeof gifUrl !== "undefined") {
+                        console.log(`*** Loading GIF from ${gifUrl} ...`)
+                        playVideo(gifUrl)
+                    } else {
+                        console.log("warning: gifUrl is undefined, resp was:", resp)
+                    }
+                }
+                btnFetch.disabled = false
+            })
+            .catch((err) => {
+                console.log("Error loading GIF:", err)
+            })
     }
 </script>
 
-<label for="gifkeyword">Search Term:</label>
+<label for="keyword">Search Term:</label>
 
-<input
-    type="text"
-    value="fireworks"
-    id="gifkeyword"
-    name="gifkeyword"
-    required
-    minlength="3"
-    maxlength="16"
-    size="20"
-/>
-<button on:click={handleClick}>Fetch GIF!</button>
+<input type="text" value="fireworks" id="keyword" name="keyword" required minlength="3" maxlength="16" size="20" />
+<button id="btnfetch" on:click={onPressFetchButton}>Fetch GIF!</button>
 <br /><br />
-<!-- <textarea id="tx1" /><br /><br /> -->
 
 <!-- svelte-ignore a11y-media-has-caption -->
 <video id="gifv" width="400" height="300" />
@@ -102,13 +111,6 @@
 <style>
     video {
         display: block;
-        border: 2px solid navy;
+        border: 1px solid navy;
     }
-    /* textarea {
-        display: block;
-        width: 50%;
-        height: 600px;
-        font-family: "Cascadia Code", Connsolas, "Courier New", Courier, monospace;
-        font-size: 18px;
-    } */
 </style>
