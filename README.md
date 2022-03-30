@@ -8,9 +8,16 @@ A simple NodeJS + Express 'Hello World' app, with Svelte.
 npm install -g nodemon # for hot-reloading
 ```
 
-## Run
+## Develop with hot reloading
+
+```bash
+projectroot/svelte$ npm run dev
+projectroot$ npm run live
+```
+
+## Deploy and Run
 
 ```bash
 npm run bundle # create svelte bundle
-npm run server # or `npm run live` for hot-reloading
+npm run server
 ```
