@@ -2,7 +2,7 @@
     let tenorKey = ""
     let videoPlayed = false
 
-    let errorHandler = function (err) {
+    function errorHandler(err) {
         return new Response(
             JSON.stringify({
                 msgtype: "error",
