@@ -1,5 +1,5 @@
-import HelloWorld from "./HelloWorld.svelte"
+import Gifsearch from "./Gifsearch.svelte"
 
-new HelloWorld({
+new Gifsearch({
     target: document.querySelector("#hello-svelte"),
 })
