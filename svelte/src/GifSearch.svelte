@@ -56,7 +56,7 @@
     }
 
     function playVideo(mp4url) {
-        var video = document.getElementById("gifv")
+        let video = document.getElementById("gifv")
         video.loop = true
         if (videoPlayed) {
             video.pause()
@@ -64,7 +64,7 @@
             video.load()
             videoPlayed = false
         }
-        var source = document.createElement("source")
+        let source = document.createElement("source")
 
         source.setAttribute("src", mp4url)
         source.setAttribute("type", "video/mp4")
