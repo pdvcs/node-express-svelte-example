@@ -27,3 +27,23 @@ projectroot$ npm run live
 npm run bundle # create svelte bundle
 npm run server
 ```
+
+## Docker
+
+The application has now been dockerized. You can use the following commands to build and run the container:
+
+```bash
+# Build
+docker build . --build-arg apikey=$TENOR_API_KEY -t pdutta/node-express-svelte-example
+
+# Explore the newly built container
+docker run -i -t pdutta/node-express-svelte-example /bin/sh
+
+# Run -- visit http://localhost:14000 to view the site
+docker run -p 14000:3000 -d pdutta/node-express-svelte-example
+
+# Stop/Remove the container
+docker ps -a # grab the relevant CONTAINER_ID from here
+docker stop CONTAINER_ID
+docker rm CONTAINER_ID
+```

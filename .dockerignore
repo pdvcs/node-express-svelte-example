@@ -1,0 +1,5 @@
+node_modules
+svelte
+README.md
+public/static/api-config.json
+Dockerfile
