@@ -85,7 +85,7 @@
                 } else {
                     let gifUrl = resp.results[0].media[0].loopedmp4.url
                     if (typeof gifUrl !== "undefined") {
-                        console.log(`*** Loading GIF from ${gifUrl} ...`)
+                        console.log(`*** loading ${gifUrl} ...`)
                         playVideo(gifUrl)
                     } else {
                         console.log("warning: gifUrl is undefined, resp was:", resp)
